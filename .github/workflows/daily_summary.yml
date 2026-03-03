@@ -1,8 +1,8 @@
 name: Daily Parliamentary Summary
 on:
   schedule:
-    - cron: '0 13 * * *' # Runs at 8:00 AM EST every day
-  workflow_dispatch: # This is the magic line that adds the "Run" button
+    - cron: '0 13 * * *' 
+  workflow_dispatch:
 
 jobs:
   build:
@@ -23,3 +23,16 @@ jobs:
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
         run: python parliament_summary.py
+
+      - name: Send mail
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.MAIL_USERNAME }}
+          password: ${{ secrets.MAIL_PASSWORD }}
+          subject: "Daily Parliament Briefing: Labour & Skills"
+          to: ${{ secrets.DESTINATION_EMAIL }}
+          from: "Parliament Bot"
+          body: "The AI summary is ready. See below:\n\n"
+          file_as_body: summary.txt
