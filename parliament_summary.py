@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 # This pulls your Hugging Face token from the 'Secrets' we will set up next
 HF_TOKEN = os.environ.get("HF_TOKEN") 
 USER_EMAIL = "your-work-email@example.com" # OpenParliament asks for this in case of errors
-KEYWORDS = ["labour market", "workforce development", "Future Skills Centre", "skills and training"]
+KEYWORDS = ["labour market", "workforce development", "Future Skills Centre", "skills and training", "youth unemployment","Employment Social Development Canada"]
 API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
