@@ -1,8 +1,8 @@
 name: Daily Parliamentary Summary
 on:
-  schedule:
-    - cron: '0 13 * * *' 
   workflow_dispatch:
+  schedule:
+    - cron: '0 13 * * *'
 
 jobs:
   build:
@@ -34,8 +34,5 @@ jobs:
           subject: "Daily Parliament Briefing: Labour & Skills"
           to: ${{ secrets.DESTINATION_EMAIL }}
           from: "Parliament Bot"
-         subject: "Daily Parliament Briefing: Labour & Skills"
-          to: ${{ secrets.DESTINATION_EMAIL }}
-          from: "Parliament Bot"
-          # This version is cleaner:
-          html_body: file://summary.txt
+          body: "The AI summary is attached or included below."
+          file_as_body: summary.txt
