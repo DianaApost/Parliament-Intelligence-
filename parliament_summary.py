@@ -11,23 +11,32 @@ API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 def fetch_parliament_data():
-    # Looks for data from the previous day
+   def fetch_parliament_data():
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-    combined_text = ""
+    # Using the Lipad/OpenParliament style API structure
+    url = f"https://api.openparliament.ca/hansards/?date={yesterday}"
     
-    for word in KEYWORDS:
-        # Search OpenParliament debates
-        url = f"https://api.openparliament.ca/debates/?q={word}&date={yesterday}"
-        res = requests.get(url, headers={'User-Agent': USER_EMAIL, 'Accept': 'application/json'})
-        
-        if res.status_code == 200:
-            data = res.json()
-            for obj in data.get('objects', []):
-                # Clean up the text slightly for the AI
-                content = obj['content_en'].replace('\n', ' ')
-                combined_text += f" [Topic: {word}] {content}\n"
-    
-    return combined_text
+    try:
+        response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+        if response.status_code == 200:
+            data = response.json()
+            objects = data.get('objects', [])
+            
+            # If no debates were held (like during a break), objects will be empty
+            if not objects:
+                return "No relevant mentions found."
+
+            mentions = []
+            for obj in objects:
+                # We check if 'content_en' exists safely using .get()
+                content = obj.get('content_en', "")
+                if any(k.lower() in content.lower() for k in KEYWORDS):
+                    mentions.append(content)
+            
+            return " ".join(mentions) if mentions else "No relevant mentions found."
+        return "No relevant mentions found."
+    except Exception as e:
+        return f"Error fetching data: {str(e)}"
 
 def query_summarizer(text):
     if not text.strip():
