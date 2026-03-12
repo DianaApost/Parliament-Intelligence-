@@ -11,32 +11,34 @@ API_URL = "https://api-inference.huggingface.co/models/facebook/bart-large-cnn"
 HEADERS = {"Authorization": f"Bearer {HF_TOKEN}"}
 
 def fetch_parliament_data():
-   def fetch_parliament_data():
     yesterday = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
-    # Using the Lipad/OpenParliament style API structure
     url = f"https://api.openparliament.ca/hansards/?date={yesterday}"
     
     try:
+        # We add a header to tell the site we want the JSON version of the data
         response = requests.get(url, headers={'Accept': 'application/json'}, timeout=10)
+        
         if response.status_code == 200:
             data = response.json()
+            # Safety check: Get 'objects' list, or an empty list if it's missing
             objects = data.get('objects', [])
             
-            # If no debates were held (like during a break), objects will be empty
             if not objects:
                 return "No relevant mentions found."
 
             mentions = []
             for obj in objects:
-                # We check if 'content_en' exists safely using .get()
+                # Use .get() to safely check for 'content_en' without crashing
                 content = obj.get('content_en', "")
                 if any(k.lower() in content.lower() for k in KEYWORDS):
                     mentions.append(content)
             
             return " ".join(mentions) if mentions else "No relevant mentions found."
+            
         return "No relevant mentions found."
     except Exception as e:
-        return f"Error fetching data: {str(e)}"
+        # This will catch any other weird errors and let the script finish safely
+        return f"Process idle: {str(e)}"
 
 def query_summarizer(text):
     if not text.strip():
